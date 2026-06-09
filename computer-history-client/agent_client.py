@@ -32,9 +32,16 @@ class AgentClient:
         
         # Create OpenAI client authenticated with Azure credentials 
 
-
-
-        
+        self.client = OpenAI(
+            api_key=get_bearer_token_provider(
+                DefaultAzureCredential(), 
+                "https://ai.azure.com/.default"
+            
+            ),
+                
+            base_url=self.agent_endpoint,
+            default_query={"api-version": "2025-11-15-preview"}
+        )
         # Maintain conversation history (last 3 exchanges)
         self.conversation_history: List[Dict[str, Any]] = []
         self.max_history = 3
@@ -63,8 +70,11 @@ class AgentClient:
 
             # Send prompt with full conversation history and get response
 
-
-
+            response = self.client.responses.create(
+                input=self.conversation_history
+                
+            )
+            assistant_message = response.output_text
             
             # Add assistant response to conversationhistory
             self.conversation_history.append({
